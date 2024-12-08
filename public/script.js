@@ -85,19 +85,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 const row = Math.floor(y / 60);
                 const endSquare = row * 8 + col;
                 if (endSquare >= 0 && endSquare < 64 && valid_coords) {
-                    ws.send(JSON.stringify({
-                        "type" : "move",
-                        "startRow" : selectedPiece.dataset.row,
-                        "startCol" : selectedPiece.dataset.col,
-                        "endRow" : String(row), // here problem for chess_engine
-                        "endCol" : String(col),
-                    }));
+                    // ws.send(JSON.stringify({
+                    //     "type" : "move",
+                    //     "startRow" : selectedPiece.dataset.row,
+                    //     "startCol" : selectedPiece.dataset.col,
+                    //     "endRow" : String(row), // here problem for chess_engine
+                    //     "endCol" : String(col),
+                    // }));
                     // do this , if move is valid and checked on chess engine
-					// ws.send(JSON.stringify({
-					// 	"type" : "update_board",
-					// 	"startSquare" : startSquare,
-					// 	"endSquare" : endSquare,
-					// }));
+					ws.send(JSON.stringify({
+						"type" : "update_board",
+						"startSquare" : startSquare,
+						"endSquare" : endSquare,
+					}));
 					const child = board.children[endSquare].firstChild;
 					if (child)
 						child.remove();
