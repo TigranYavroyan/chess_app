@@ -1,4 +1,11 @@
-const ws = new WebSocket("ws://localhost:8080");
+const localIP = window.location.hostname;
+
+// Dynamically set the API endpoint or other resources
+const apiEndpoint = `${localIP}:8080/api`;
+
+console.log(`Server Address: ${apiEndpoint}`);
+
+const ws = new WebSocket(`ws://${apiEndpoint}`);
 const board = document.getElementById('board');
 
 function wait(ms) {
