@@ -349,35 +349,29 @@ void Checkboard::play() {
 
 void Checkboard::_getMove() {
     bool valid_move = false;
-    if (!input_system.input_move())
-        return;
+    input_system.input_move();
     int fromCol = input_system.get_from_col();
     int fromRow = input_system.get_from_row();
-    // if (!_checkEmpty(fromRow, fromCol)) {
-        int toCol = input_system.get_to_col();
-        int toRow = input_system.get_to_row();
-        for (int i = 0; i < pieces_amount; ++i) {
-            if ((pieces[i] != nullptr) && (pieces[i]->getCol() == fromCol) && (pieces[i]->getRow() == fromRow)) { // trying find the right piece
-                if (_moveCheck(i) && _checking_right_eaten_piece(toCol, toRow)) { // checking the right move 
-                    if (!castling_done)
-                        _doMove(i, fromCol, fromRow, toCol, toRow);
-                    else
-                        castling_done = false;
-                    valid_move = true;
-                    break;
-                }
+    int toCol = input_system.get_to_col();
+    int toRow = input_system.get_to_row();
+    for (int i = 0; i < pieces_amount; ++i) {
+        if ((pieces[i] != nullptr) && (pieces[i]->getCol() == fromCol) && (pieces[i]->getRow() == fromRow)) { // trying find the right piece
+            if (_moveCheck(i) && _checking_right_eaten_piece(toCol, toRow)) { // checking the right move 
+                if (!castling_done)
+                    _doMove(i, fromCol, fromRow, toCol, toRow);
+                else
+                    castling_done = false;
+                valid_move = true;
+                break;
             }
         }
-        if (valid_move) {
-           __valid_move();
-        }
-        else {
-            __invalid_move();
-        }
-    // }
-    // else {
-    //     __invalid_move();
-    // }
+    }
+    if (valid_move) {
+        __valid_move();
+    }
+    else {
+        __invalid_move();
+    }
 }
 
 void Checkboard::printBoard() const {

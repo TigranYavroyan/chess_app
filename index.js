@@ -37,23 +37,9 @@ const http_server = http.createServer((req, res) => {
     });
 });
 
-
-
 const engine_name = './Checkmate_CPP/chess_engine';
 const chessEngine = spawn(engine_name);
 let game_end = false;
-
-chessEngine.stdout.on('data', (data) => {
-    try {
-        const jsonResponse = JSON.parse(data.toString());
-        if (jsonResponse["game_end"] === "true") {
-            game_end = true;
-        }
-        console.log("Engine Response:", jsonResponse);
-    } catch (err) {
-        console.error("Invalid JSON response:", response, err.message);
-    }
-});
 
 chessEngine.on('close', (code) => {
     console.log(`Chess engine exited with code ${code}`);
@@ -87,20 +73,34 @@ server.on ("connection", (ws) => { // ws is connected client
     ws.on("message", (data) => {
         try {
             const message = JSON.parse(data);
-            if (message.type === "update_board") {
-                server.clients.forEach((client) => {
-                    if (client !== ws && client.readyState === WebSocket.OPEN) {
-                        client.send(JSON.stringify({
-                            "type" : "update_board",
-                            "startSquare" : message.startSquare,
-                            "endSquare" : message.endSquare
-                        }));
+            if (message.type === "move") {
+                chessEngine.stdin.write(JSON.stringify(message) + '\n');
+                chessEngine.stdout.once('data', (data) => {
+                    try {
+                        data = JSON.parse(data.toString("utf-8"));
+                        if (data["game_end"] === "true") {
+                            game_end = true;
+                        }
+                        else if (data["valid"] === "true") {
+                            server.clients.forEach((client) => {
+                            console.log("valid_move sent by server");
+                            if (client.readyState === WebSocket.OPEN) {
+                                    client.send(JSON.stringify({
+                                        "type" : "update_board",
+                                        "startSquare" : message.startSquare,
+                                        "endSquare" : message.endSquare
+                                    }));
+                                }
+                            });
+                        }
+                        else if (data["valid"] === "false") {
+                            console.log("invalid_move sent by server");
+                        }
+                        console.log("Engine Response:", data);
+                    } catch (err) {
+                        console.error("Invalid JSON response:", data, err.message);
                     }
                 });
-            }
-            else if (message.type === "move") {
-                console.log(message);
-                chessEngine.stdin.write(JSON.stringify(message) + '\n');
             }
         }
         catch (err) {

@@ -10,7 +10,7 @@ public:
     ~InputSystem();
 public:
     void print() const;
-    bool input_move();
+    void input_move();
     void setCurrentPlayer(Color change);
     void set_to_move(int toCol, int toRow);
     void set_from_move(int fromCol, int fromRow);

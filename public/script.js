@@ -1,18 +1,27 @@
 const ws = new WebSocket("ws://localhost:8080");
 const board = document.getElementById('board');
 
+function wait(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+let valid_move = null;
+
 ws.onmessage = event => {
-	const data = JSON.parse(event.data);
-	if (data.type === "update_board") {
-		const endSquare = data.endSquare;
-		const startSquare = data.startSquare;
+    const data = JSON.parse(event.data);
+	if (data["type"] === "update_board") {
+		const endSquare = Number(data.endSquare);
+		const startSquare = Number(data.startSquare);
+        console.log(startSquare, endSquare);
 		const pickedPiece = board.children[startSquare].firstChild;
 
 		const child = board.children[endSquare].firstChild;
+        console.log(child);
 		if (child)
 			child.remove();
+        console.log(board.children[endSquare], endSquare);
 		board.children[endSquare].appendChild(pickedPiece);
-		board.children[startSquare].firstChild.remove();
+		// board.children[startSquare].firstChild.remove();
 	}
 }
 
@@ -85,27 +94,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 const row = Math.floor(y / 60);
                 const endSquare = row * 8 + col;
                 if (endSquare >= 0 && endSquare < 64 && valid_coords) {
-                    // ws.send(JSON.stringify({
-                    //     "type" : "move",
-                    //     "startRow" : selectedPiece.dataset.row,
-                    //     "startCol" : selectedPiece.dataset.col,
-                    //     "endRow" : String(row), // here problem for chess_engine
-                    //     "endCol" : String(col),
-                    // }));
-                    // do this , if move is valid and checked on chess engine
-					ws.send(JSON.stringify({
-						"type" : "update_board",
-						"startSquare" : startSquare,
-						"endSquare" : endSquare,
-					}));
-					const child = board.children[endSquare].firstChild;
-					if (child)
-						child.remove();
-                    board.children[endSquare].appendChild(selectedPiece);
-                } else {
-                    board.children[startSquare].appendChild(selectedPiece);
+                    ws.send(JSON.stringify({ // how wait after sent message to get response on it
+                        "type" : "move",
+                        "startRow" : selectedPiece.dataset.row,
+                        "startCol" : selectedPiece.dataset.col,
+                        "endRow" : String(row),
+                        "endCol" : String(col),
+                        "startSquare" : startSquare,
+                        "endSquare" : endSquare,
+                    }));
                 }
-
                 selectedPiece.style.position = 'static';
                 selectedPiece = null;
             }

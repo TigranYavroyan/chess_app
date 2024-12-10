@@ -17,7 +17,7 @@ json InputSystem::get_response() const {
     return response;
 }
 
-bool InputSystem::input_move() {
+void InputSystem::input_move() {
     char fromRow = 0;
     char toRow = 0;
     char fromCol = ' ';
@@ -26,15 +26,14 @@ bool InputSystem::input_move() {
 
     std::getline(std::cin, input);
     json request = json::parse(input);
-    std::string fromr = (request["startRow"]);
+    std::string fromr = request["startRow"];
     std::string fromc = request["startCol"];
     std::string tor = request["endRow"];
     std::string toc = request["endCol"];
-    fromCol = fromc[0];
-    fromRow = fromr[0];
-    toCol = tor[0];
-    toRow = toc[0];
-
+    fromCol = fromc[0] - '0';
+    fromRow = fromr[0] - '0';
+    toCol = toc[0] - '0';
+    toRow = tor[0] - '0';
 
     // if (!_input_checks(fromRow, fromCol, toRow, toCol))
     // {
@@ -46,7 +45,6 @@ bool InputSystem::input_move() {
     // _change(fromRow, toRow, fromCol, toCol);
     set_from_move(fromCol, fromRow);
     set_to_move(toCol, toRow);
-    return true;
 }
 int InputSystem::get_from_row() const {
     return real_from_row;
