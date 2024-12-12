@@ -12,24 +12,42 @@ function wait(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+const make_move = function(from, to) {
+    const pickedPiece = board.children[from].firstChild;
+            
+    board.children[to].appendChild(pickedPiece);
+    pickedPiece.dataset.row = Math.floor(to / 8);
+    pickedPiece.dataset.col = to % 8;
+}
+
 let valid_move = null;
 
 ws.onmessage = event => {
     const data = JSON.parse(event.data);
 	if (data["type"] === "update_board") {
-		const endSquare = Number(data.endSquare);
-		const startSquare = Number(data.startSquare);
-        console.log(startSquare, endSquare);
-		const pickedPiece = board.children[startSquare].firstChild;
-
+		let endSquare = Number(data.endSquare);
+		let startSquare = Number(data.startSquare);
+        
 		const child = board.children[endSquare].firstChild;
-        console.log(child);
 		if (child)
 			child.remove();
-        console.log(board.children[endSquare], endSquare);
-		board.children[endSquare].appendChild(pickedPiece);
-		// board.children[startSquare].firstChild.remove();
+        make_move(startSquare, endSquare);
+
+        if (data["move_state"] === "castling") {
+            endSquare = Number(data.rockEnd);
+            startSquare = Number(data.rockStart);
+            make_move(startSquare, endSquare);
+        }
 	}
+    if (data["type"] === "game_over") {
+        document.body.innerHTML = `
+            <div style="text-align:center; margin-top:20%;">
+                <h1>Game Over</h1>
+                <p>${data.message}</p>
+            </div>`;
+        document.body.style.backgroundColor = "#000";
+        document.body.style.color = "#fff";
+    }
 }
 
 function draw_checkboard () {

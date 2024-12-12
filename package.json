@@ -1,9 +1,9 @@
 {
   "name": "chess_app",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "dev": "make -C ./Checkmate_CPP && node index.js"
+    "dev": "make -C ./Checkmate_CPP && node server.js"
   },
   "keywords": [],
   "author": "",

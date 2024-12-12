@@ -21,7 +21,7 @@ public:
     bool get_stalemate() const;
     std::string get_board_data() const;
 
-    void __valid_move (bool game_end = false);
+    void __valid_move (bool game_end = false, bool is_castling = false);
     void __invalid_move ();
 private:
     json response;
@@ -43,13 +43,13 @@ private:
     int _finding_king (Color color) const ;
     int _find_piece(int row, int col) const ;
     void _pawn_to_queen (int index);
-    void _doMove(int i, int fromCol, int fromRow, int toCol, int toRow);
     void _getMove();
     void _setPiece(int index);
     void _setEmpty(int row, int col);
     void _setPieces();
     void _setEmpties();
     void _castling_done();
+    bool _doMove(int i, int fromCol, int fromRow, int toCol, int toRow);
     bool _castling_CFEKP(int kings_index, int toRow, int toCol, int tmp_row, int tmp_col);
     bool _castling(int index);
     bool _check_checking (Color color);

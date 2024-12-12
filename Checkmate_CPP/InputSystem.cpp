@@ -1,5 +1,6 @@
 #include "InputSystem.hpp"
 #include <iostream>
+#include <utility>
 #include <limits> // Add this line to include the <limits> header
 
 InputSystem::InputSystem(): real_from_row{0}, real_to_row{0}, real_from_col{0}, real_to_col{0}, board_size{8}, currentPlayer{WHITE}, response{} {}
@@ -95,10 +96,34 @@ json InputSystem::invalid_move_json () const {
         });
 }
 
-json InputSystem::valid_move_json (bool game_end) const {
-    if (game_end) {
+std::pair<std::string, std::string> InputSystem::_get_rock_pos () const {
+    if (real_to_row == 7 && real_to_col == 6)
+        return {"63", "61"};
+    else if (real_to_row == 7 && real_to_col == 2)
+        return {"56", "58"};
+    else if (real_to_row == 0 && real_to_col == 6)
+        return {"7", "5"};
+    else if (real_to_row == 0 && real_to_col == 2)
+        return {"0", "3"};
+    else 
+        return {"-1", "-1"};
+}
+
+json InputSystem::valid_move_json (bool game_end, bool is_castling) const {
+    if (is_castling) {
+        auto pair = _get_rock_pos();
         return json({
-                { "game_end", "true"},
+                { "game_end", "false" },
+                { "type", "response" },
+                { "valid", "true" },
+                { "state", "castling" },
+                { "rockStart", pair.first},
+                { "rockEnd", pair.second},
+            });
+    }
+    else if (game_end) {
+        return json({
+                { "game_end", "true" },
                 { "type", "response" },
                 { "valid", "true" },
                 { "state", "valid_move" }
@@ -106,7 +131,7 @@ json InputSystem::valid_move_json (bool game_end) const {
     }
     else {
         return json({
-                { "game_end", "false"},
+                { "game_end", "false" },
                 { "type", "response" },
                 { "valid", "true" },
                 { "state", "valid_move" }

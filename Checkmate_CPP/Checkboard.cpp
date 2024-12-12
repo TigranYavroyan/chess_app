@@ -188,8 +188,9 @@ bool Checkboard::_moveCheck(int index, int fromCol = -1, int fromRow = -1, int t
     switch (pieces[index] -> getType())
     {
         case KING:
-            if (_castling(index))
+            if (_castling(index)) {
                 return true;
+            }
             else if(abs(toCol - pieces[index] -> getCol()) == 1 && abs(toRow - pieces[index] -> getRow()) == 1) {
                 _castling_done();
                 return true;
@@ -202,8 +203,9 @@ bool Checkboard::_moveCheck(int index, int fromCol = -1, int fromRow = -1, int t
                 _castling_done();
                 return true;
             }
-            else
+            else {
                 return false;
+            }
             break;
         case KNIGHT:
             if(abs(toRow - pieces[index] -> getRow()) == 2 && abs(toCol - pieces[index] -> getCol()) == 1)
@@ -356,21 +358,25 @@ void Checkboard::_getMove() {
     int toRow = input_system.get_to_row();
     for (int i = 0; i < pieces_amount; ++i) {
         if ((pieces[i] != nullptr) && (pieces[i]->getCol() == fromCol) && (pieces[i]->getRow() == fromRow)) { // trying find the right piece
-            if (_moveCheck(i) && _checking_right_eaten_piece(toCol, toRow)) { // checking the right move 
-                if (!castling_done)
-                    _doMove(i, fromCol, fromRow, toCol, toRow);
-                else
-                    castling_done = false;
+            if (_moveCheck(i) && _checking_right_eaten_piece(toCol, toRow)) { // checking the right move
                 valid_move = true;
+                if (!castling_done) {
+                    valid_move = _doMove(i, fromCol, fromRow, toCol, toRow);
+                }
+                else {
+                    __valid_move(false, true);
+                    castling_done = false;
+                    return;
+                }
                 break;
             }
         }
     }
-    if (valid_move) {
-        __valid_move();
-    }
-    else {
-        __invalid_move();
+    if ((!checkmate && !stalemate)) {
+        if (valid_move)
+            __valid_move();
+        else
+            __invalid_move();
     }
 }
 
@@ -531,9 +537,11 @@ void Checkboard::print_rest() const {
     std::cout << "\n\n count -> " << count << "\n" << std::endl; 
 }
 
-void Checkboard::_doMove(int i, int fromCol, int fromRow, int toCol, int toRow) {
+bool Checkboard::_doMove(int i, int fromCol, int fromRow, int toCol, int toRow) {
     Piece tmp_piece; // creating the tmp object for eated pieces under check
     bool to_move_empty = false;
+    bool valid_move_done = true;
+
     int index_to_eaten_piece = -1;
     if (_checkEmpty(toRow, toCol))
         to_move_empty = true;
@@ -554,6 +562,7 @@ void Checkboard::_doMove(int i, int fromCol, int fromRow, int toCol, int toRow) 
         _checkmate(input_system.get_currentPlayer());
     }
     else {
+        valid_move_done = false;
         pieces[i]->setTurn(tmp_row, tmp_col);
         _setPiece(i);
         if (to_move_empty) {
@@ -569,6 +578,7 @@ void Checkboard::_doMove(int i, int fromCol, int fromRow, int toCol, int toRow) 
         }
     }
     pawn_to_queen = false;
+    return valid_move_done;
 }
 
 bool Checkboard::get_stalemate() const {
@@ -645,8 +655,8 @@ std::string Checkboard::get_board_data() const {
     return board_data;
 }
 
-void Checkboard::__valid_move (bool game_end) {
-    response = input_system.valid_move_json(game_end);
+void Checkboard::__valid_move (bool game_end, bool is_castling) {
+    response = input_system.valid_move_json(game_end, is_castling);
     std::cout << response.dump() << std::endl;
     // exit(EXIT_SUCCESS);
 }

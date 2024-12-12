@@ -15,7 +15,7 @@ public:
     void set_to_move(int toCol, int toRow);
     void set_from_move(int fromCol, int fromRow);
     json invalid_move_json () const;
-    json valid_move_json (bool game_end = false) const;
+    json valid_move_json (bool game_end = false, bool is_castling = false) const;
     void set_response(const json& res);
     json get_response() const;
     int get_from_row() const;
@@ -34,4 +34,5 @@ private:
 
     void _change(int fromRow, int toRow, int fromCol, int toCol);
     bool _input_checks(int fromRow, int fromCol, int toRow, int toCol) const ;
+    std::pair<std::string, std::string> _get_rock_pos () const;
 };
